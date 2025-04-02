@@ -18,6 +18,8 @@ from datafaker.first_names import first_names
 from datafaker.last_names import last_names
 from datafaker.streets import streets
 from datafaker.municipalities import municipalities
+from datafaker.suffix_company import suffix_company
+from datafaker.prefix_company import prefix_company
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +83,16 @@ class DataGenerator:
         last = random.choice(self.last_names)
         return f"{first} {last}"
 
+    def generate_company_name(self, last_name=None) -> str:
+        if last_name is None:
+            last_name = random.choice(self.last_names)
+        
+        company_name = random.choice([
+            f"{last_name} {random.choice(suffix_company)}",
+            f"{random.choice(prefix_company)} {last_name}"
+        ])
+        return company_name
+
     def generate_address(self) -> str:
         street = random.choice(self.streets)
         number = random.randint(1, 2000)
@@ -143,6 +155,7 @@ class DataGenerator:
             "Phone": self.generate_phone(),
             "Email": None
         }
+        data["Company Name"] = self.generate_company_name(data["Name"].split()[-1])
         data["Email"] = self.generate_email(data["Name"])
         return data
 
@@ -150,6 +163,7 @@ class DataGenerator:
 GENERATORS = {
     "cpf": ("CPF", lambda gen: gen.generate_cpf()),
     "cnpj": ("CNPJ", lambda gen: gen.generate_cnpj()),
+    "company": ("Company Name", lambda gen: gen.generate_company_name()),    
     "rg": ("RG", lambda gen: gen.generate_rg(formatted=True)),
     "name": ("Name", lambda gen: gen.generate_name()),
     "address": ("Address", lambda gen: gen.generate_address()),
